@@ -1,0 +1,1 @@
+ $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I".." -I"../../../usb/include" -I"../../common"   -DXPRJ_PIC32_USB_Starter_Board_PIC32MX460F512L=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  C:\Users\Brian\Projects\Personal\m-stack-master\apps\hid_composite\main.c
