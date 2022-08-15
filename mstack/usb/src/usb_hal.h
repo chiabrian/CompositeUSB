@@ -10,7 +10,7 @@
  *  Free Software Foundation, version 3; or the Apache License, version 2.0
  *  as published by the Apache Software Foundation.  If you have purchased a
  *  commercial license for this software from Signal 11 Software, your
- *  commerical license superceeds the information in this header.
+ *  commercial license supercedes the information in this header.
  *
  *  M-Stack is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -20,12 +20,12 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this software.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  You should have received a copy of the Apache License, verion 2.0 along
+ *  You should have received a copy of the Apache License, version 2.0 along
  *  with this software.  If not, see <http://www.apache.org/licenses/>.
  */
 
 #ifndef USB_HAL_H__
-#define UAB_HAL_H__
+#define USB_HAL_H__
 
 #ifdef _PIC14E
 #define NEEDS_PULL /* Whether to pull up D+/D- with SFR_PULL_EN. */
@@ -288,7 +288,14 @@ struct buffer_descriptor {
 #ifdef _18F46J50
 #define BD_ADDR 0x400
 //#undef BUFFER_ADDR
-#else
+#endif
+
+#ifdef _18F2455
+    #define BD_ADDR 0x400
+    #define BUFFER_ADDR 0x500
+#endif
+
+#ifndef BD_ADDR
 #error "CPU not supported yet"
 #endif
 
@@ -306,11 +313,19 @@ struct buffer_descriptor {
 #elif defined __XC8
 	#define memcpy_from_rom(x,y,z) memcpy(x,y,z)
 	#define FAR
-	#define BD_ATTR_TAG @##BD_ADDR
-	#ifdef BUFFER_ADDR
-		#define XC8_BUFFER_ADDR_TAG @##BUFFER_ADDR
+	#if __XC8_VERSION >= 2000
+	  // XC8 discontinued the @addr notation and replaced it with __at()
+	  #define AT_ADDR(X) __at(X)
 	#else
-		#define XC8_BUFFER_ADDR_TAG
+	  #define AT_ADDR(X) @X
+	#endif
+
+	#define BD_ATTR_TAG AT_ADDR(BD_ADDR)
+
+	#ifdef BUFFER_ADDR
+	  #define XC8_BUFFER_ADDR_TAG AT_ADDR(BUFFER_ADDR)
+	#else
+	  #define XC8_BUFFER_ADDR_TAG
 	#endif
 #endif
 
@@ -455,14 +470,24 @@ struct buffer_descriptor {
 #define SFR_USB_STALL_IF         U1IRbits.STALLIF
 #define SFR_USB_TOKEN_IF         U1IRbits.TRNIF
 #define SFR_USB_SOF_IF           U1IRbits.SOFIF
+
+#if defined(__32MM0256GPM064__) || defined(__32MM0256GPM048__)
+#define SFR_USB_IF               IFS0bits.USBIF
+#else
 #define SFR_USB_IF               IFS1bits.USBIF
+#endif
 
 #define SFR_USB_INTERRUPT_EN     U1IE
 #define SFR_TRANSFER_IE          U1IEbits.TRNIE
 #define SFR_STALL_IE             U1IEbits.STALLIE
 #define SFR_RESET_IE             U1IEbits.URSTIE
 #define SFR_SOF_IE               U1IEbits.SOFIE
+
+#if defined(__32MM0256GPM064__) || defined(__32MM0256GPM048__)
+#define SFR_USB_IE               IEC0bits.USBIE
+#else
 #define SFR_USB_IE               IEC1bits.USBIE
+#endif
 
 #define SFR_USB_EXTENDED_INTERRUPT_EN U1EIE
 

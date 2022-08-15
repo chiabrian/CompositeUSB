@@ -11,7 +11,7 @@
  *  Free Software Foundation, version 3; or the Apache License, version 2.0
  *  as published by the Apache Software Foundation.  If you have purchased a
  *  commercial license for this software from Signal 11 Software, your
- *  commerical license superceeds the information in this header.
+ *  commercial license supercedes the information in this header.
  *
  *  M-Stack is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -21,7 +21,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this software.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  You should have received a copy of the Apache License, verion 2.0 along
+ *  You should have received a copy of the Apache License, version 2.0 along
  *  with this software.  If not, see <http://www.apache.org/licenses/>.
  */
 
@@ -557,7 +557,7 @@ static void init_endpoints(void)
 
 /* usb_init() is called at powerup time, and when the device gets
    the reset signal from the USB bus (D+ and D- both held low) indicated
-   by interrput bit URSTIF. */
+   by interrupt bit URSTIF. */
 void usb_init(void)
 {
 	uint8_t i;
@@ -892,7 +892,9 @@ static inline int8_t handle_standard_control_request()
 		else if (descriptor == DESC_STRING) {
 #ifdef MICROSOFT_OS_DESC_VENDOR_CODE
 			if (descriptor_index == 0xee) {
-				/* Microsoft descriptor Requested */
+				/* Microsoft descriptor requested */
+				/* This will not be requested from USB 1.1 devices */
+				/* Device descriptor must state 0x0200 = USB 2.0 or higher */
 				#ifdef __XC8
 				/* static is better in all cases on XC8. On
 				 * XC16/32, non-static uses less RAM. */
@@ -904,7 +906,7 @@ static inline int8_t handle_standard_control_request()
 					0x3,                           /* bDescriptorType */
 					{'M','S','F','T','1','0','0'}, /* qwSignature */
 					MICROSOFT_OS_DESC_VENDOR_CODE, /* bMS_VendorCode */
-					0x0,                           /* bPad */
+					0x01,                          /* bPad Must be 0x01 */
 				};
 
 				start_control_return(&os_descriptor, sizeof(os_descriptor), setup->wLength);
@@ -1726,14 +1728,21 @@ void _ISR __attribute((auto_psv)) _USB1Interrupt()
    to use shadow registers or not. This is the safest option, but if a user
    wanted maximum performance, they could use IPL7SRS and set the USBIP to 7.
    IPL 7 is the only time the shadow register set can be used on PIC32MX. */
-void __attribute__((vector(_USB_1_VECTOR), interrupt(), nomips16)) _USB1Interrupt()
+
+#if defined(__32MM0256GPM064__) || defined(__32MM0256GPM048__)
+#define USB_VECTOR  _USB_VECTOR
+#else
+#define USB_VECTOR  _USB_1_VECTOR
+#endif
+
+void __attribute__((vector(USB_VECTOR), interrupt(), nomips16)) _USB1Interrupt()
 {
 	usb_service();
 }
 
 #elif __C18
 #elif __XC8
-	/* On these systems, interupt handlers are shared. An interrupt
+	/* On these systems, interrupt handlers are shared. An interrupt
 	 * handler from the application must call usb_service(). */
 #else
 #error Compiler not supported yet

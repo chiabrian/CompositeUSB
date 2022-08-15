@@ -12,7 +12,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  For details, see sections 7, 8, and 9
  * of the Apache License, version 2.0 which apply to this file.  If you have
  * purchased a commercial license for this software from Signal 11 Software,
- * your commerical license superceeds the information in this header.
+ * your commercial license supercedes the information in this header.
  *
  * Alan Ott
  * Signal 11 Software
@@ -106,11 +106,49 @@ _CONFIG3(WPFP_WPFP255 & SOSCSEL_SOSC & WUTSEL_LEG & ALTPMP_ALPMPDIS & WPDIS_WPDI
 #pragma config FWDTEN = OFF             // Watchdog Timer Enable (WDT Disabled (SWDTEN Bit Controls))
 
 // DEVCFG0
-#pragma config DEBUG = OFF           // Background Debugger Enable (Debugger is disabled)
+#pragma config DEBUG = OFF              // Background Debugger Enable (Debugger is disabled)
 #pragma config ICESEL = ICS_PGx2        // ICE/ICD Comm Channel Select (ICE EMUC2/EMUD2 pins shared with PGC2/PGD2)
 #pragma config PWP = OFF                // Program Flash Write Protect (Disable)
 #pragma config BWP = OFF                // Boot Flash Write Protect bit (Protection Disabled)
 #pragma config CP = OFF                 // Code Protect (Protection Disabled)
+
+#elif __32MM0256GPM064__ || __32MM0256GPM048__
+
+// FDEVOPT
+#pragma config SOSCHP = OFF             //Secondary Oscillator High Power Enable bit->SOSC oprerates in normal power mode.
+#pragma config ALTI2C = OFF             //Alternate I2C1 Pins Location Enable bit->Primary I2C1 pins are used
+#pragma config FUSBIDIO = OFF           //USBID pin control->USBID pin is controlled by the USB module
+#pragma config FVBUSIO = OFF            //VBUS Pin Control->VBUS pin is controlled by the USB module
+
+// FICD
+#pragma config JTAGEN = OFF             //JTAG Enable bit->JTAG is disabled
+#pragma config ICS = PGx2               //ICE/ICD Communication Channel Selection bits->Communicate on PGEC2/PGED2
+
+// FPOR
+#pragma config BOREN = BOR3             //Brown-out Reset Enable bits->Brown-out Reset enabled in hardware; SBOREN bit disabled
+#pragma config RETVR = OFF              //Retention Voltage Regulator Enable bit->Retention regulator is disabled
+#pragma config LPBOREN = ON             //Downside Voltage Protection Enable bit->Low power BOR is enabled, when main BOR is disabled
+
+// FWDT
+#pragma config SWDTPS = PS1048576       //Sleep Mode Watchdog Timer Postscale Selection bits->1:1048576
+#pragma config FWDTWINSZ = PS25_0       //Watchdog Timer Window Size bits->Watchdog timer window size is 25%
+#pragma config WINDIS = OFF             //Windowed Watchdog Timer Disable bit->Watchdog timer is in non-window mode
+#pragma config RWDTPS = PS1048576       //Run Mode Watchdog Timer Postscale Selection bits->1:1048576
+#pragma config RCLKSEL = LPRC           //Run Mode Watchdog Timer Clock Source Selection bits->Clock source is LPRC (same as for sleep mode)
+#pragma config FWDTEN = OFF             //Watchdog Timer Enable bit->WDT is disabled
+
+// FOSCSEL
+#pragma config FNOSC = FRCDIV           //Oscillator Selection bits->FRCDIV
+#pragma config PLLSRC = FRC             //System PLL Input Clock Selection bit->FRC oscillator is selected as PLL reference input on device reset
+#pragma config SOSCEN = ON              //Secondary Oscillator Enable bit->Secondary oscillator is enabled
+#pragma config IESO = ON                //Two Speed Startup Enable bit->Two speed startup is enabled
+#pragma config POSCMOD = OFF            //Primary Oscillator Selection bit->Primary oscillator is disabled
+#pragma config OSCIOFNC = OFF           //System Clock on CLKO Pin Enable bit->OSCO pin operates as a normal I/O
+#pragma config SOSCSEL = OFF            //Secondary Oscillator External Clock Enable bit->SOSC pins configured for Crystal mode
+#pragma config FCKSM = CSECMD           //Clock Switching and Fail-Safe Clock Monitor Enable bits->Clock switching is enabled; Fail-safe clock monitor is disabled
+
+// FSEC
+#pragma config CP = OFF                 //Code Protection Enable bit->Code protection is disabled
 
 #else
 	#error "Config flags for your device not defined"
@@ -220,6 +258,22 @@ void hardware_init(void)
 	system_config_performance(80000000);
 #elif __32MX795F512L__
 	system_config_performance(60000000);
+#elif __32MM0256GPM064__ || __32MM0256GPM048__
+    /* refer to DS60001112 6.3.7.2 OSCILLATOR SWITCHING SEQUENCE */
+    /* Perform unlock sequence of SYSKEY writes (no interrupts or dma allowed while doing this) */
+    SYSKEY = 0x0; /* write invalid key to force lock */
+    SYSKEY = 0xAA996655;
+    SYSKEY = 0x556699AA;
+    OSCTUN = 0x9000; /* FRC osc runs at nominal 8MHz tuned by USB 1ms start-of-frame */
+    SPLLCON = 0x2050080; /* PLLODIV 1:4; PLLMULT 12x; PLLICLK FRC; => 24MHz SPLL system clock */
+    /* Note the 96MHz to the USB module is internally divided to 48MHz */
+    PWRCON = 0x00;
+    OSCCON = (0x100 | _OSCCON_OSWEN_MASK); /* OSCCONbits.NOSC = 1; PLL clock source, SOSCEN disabled */
+    SYSKEY = 0x0; /* Lock */
+    while(OSCCONbits.OSWEN == 1); /* wait for clock switch */
+    while(CLKSTATbits.SPLLRDY != 1);
+    REFO1CON = 0x00; /* reference oscillator output disabled */
+    REFO1TRIM = 0x00;
 #else
 	#error "Add configuration for your processor here"
 #endif
@@ -234,6 +288,11 @@ void hardware_init(void)
 		INTCONbits.MVEC = 1; /* Multi-vector interrupts */
 		IPC11bits.USBIP = 4; /* Interrupt priority, must set to != 0. */
 		__asm volatile("ei");
+    #elif __32MM0256GPM064__ || __32MM0256GPM048__
+        INTCONbits.MVEC = 1;
+        IPC7bits.USBIP = 4;
+        IPC7bits.USBIS = 0;
+        __asm volatile("ei");
 	#endif
 #endif
 

@@ -27,6 +27,9 @@
           <itemPath>mstack/usb/include/usb_hid.h</itemPath>
           <itemPath>mstack/usb/include/usb_microsoft.h</itemPath>
           <itemPath>mstack/usb/include/usb_msc.h</itemPath>
+          <itemPath>mstack/usb/src/usb_hal.h</itemPath>
+          <itemPath>mstack/usb/src/usb_priv.h</itemPath>
+          <itemPath>mstack/usb/src/usb_winusb.h</itemPath>
         </logicalFolder>
         <logicalFolder name="src" displayName="src" projectFiles="true">
           <itemPath>mstack/usb/src/usb.c</itemPath>

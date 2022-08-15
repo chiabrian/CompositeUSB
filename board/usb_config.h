@@ -49,7 +49,9 @@
 	PPB_ALL          - Ping-pong all endpoints
 	PPB_EPN_ONLY     - Ping-pong all endpoints except 0
 */
-#ifdef __PIC32MX__
+#if defined(__PIC32MX__) || \
+    defined(__32MM0256GPM064__) || \
+    defined(__32MM0256GPM048__)
 	/* PIC32MX only supports PPB_ALL */
 	#define PPB_MODE PPB_ALL
 #else
