@@ -21,7 +21,7 @@
 #include "usb_config.h"
 #include "usb.h"
 #include "usb_ch9.h"
-#include "usb_hid.h"
+#include "usb_cdc.h"
 
 #ifdef __C18
 #define ROMPTR rom
@@ -57,17 +57,20 @@
  */
 struct configuration_1_packet {
 	struct configuration_descriptor  config;
-	/* First Interface */
-	struct interface_descriptor      interface;
-	struct hid_descriptor            hid;
-	struct endpoint_descriptor       ep;
-	struct endpoint_descriptor       ep1_out;
+	struct interface_association_descriptor iad;
 
-	/* Second Interface */
-	struct interface_descriptor      interface2;
-	struct hid_descriptor            hid2;
-	struct endpoint_descriptor       ep2;
-	struct endpoint_descriptor       ep2_out;
+	/* CDC Class Interface */
+	struct interface_descriptor      cdc_class_interface;
+	struct cdc_functional_descriptor_header cdc_func_header;
+	struct cdc_acm_functional_descriptor cdc_acm;
+	struct cdc_union_functional_descriptor cdc_union;
+	struct endpoint_descriptor       cdc_ep;
+
+	/* CDC Data Interface */
+	struct interface_descriptor      cdc_data_interface;
+	struct endpoint_descriptor       data_ep_in;
+	struct endpoint_descriptor       data_ep_out;
+
 };
 
 
@@ -83,83 +86,18 @@ const ROMPTR struct device_descriptor this_device_descriptor =
 	sizeof(struct device_descriptor), // bLength
 	DESC_DEVICE, // bDescriptorType
 	0x0200, // 0x0200 = USB 2.0, 0x0110 = USB 1.1
-	0x00, // Device class
-	0x00, // Device Subclass
-	0x00, // Protocol.
+	DEVICE_CLASS_MISC, // Device class
+	0x02, /* Device Subclass. See the document entitled: "USB Interface
+	         Association Descriptor Device Class Code and Use Model" */
+	0x01, // Protocol. See document referenced above.
 	EP_0_LEN, // bMaxPacketSize0
 	0xA0A0, // Vendor
-	0x0003, // Product
+	0x0004, // Product
 	0x0001, // device release (1.0)
 	1, // Manufacturer
 	2, // Product
-	0, // Serial
+	5, // Serial
 	NUMBER_OF_CONFIGURATIONS // NumConfigurations
-};
-
-/* HID Report descriptor. See the HID specification for more deatils. This
- * is the mouse example from the "HID Descriptor Tool" which can be downloaded
- * from USB.org. */
-static const ROMPTR uint8_t mouse_report_descriptor[] = {
-   0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x02,                    // USAGE (Mouse)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x09, 0x01,                    //   USAGE (Pointer)
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x05, 0x09,                    //     USAGE_PAGE (Button)
-    0x19, 0x01,                    //     USAGE_MINIMUM (Button 1)
-    0x29, 0x03,                    //     USAGE_MAXIMUM (Button 3)
-    0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //     LOGICAL_MAXIMUM (1)
-    0x95, 0x03,                    //     REPORT_COUNT (3)
-    0x75, 0x01,                    //     REPORT_SIZE (1)
-    0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-    0x95, 0x01,                    //     REPORT_COUNT (1)
-    0x75, 0x05,                    //     REPORT_SIZE (5)
-    0x81, 0x03,                    //     INPUT (Cnst,Var,Abs)
-    0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
-    0x09, 0x30,                    //     USAGE (X)
-    0x09, 0x31,                    //     USAGE (Y)
-    0x15, 0x81,                    //     LOGICAL_MINIMUM (-127)
-    0x25, 0x7f,                    //     LOGICAL_MAXIMUM (127)
-    0x75, 0x08,                    //     REPORT_SIZE (8)
-    0x95, 0x02,                    //     REPORT_COUNT (2)
-    0x81, 0x06,                    //     INPUT (Data,Var,Rel)
-    0xc0,                          //   END_COLLECTION
-    0xc0                           // END_COLLECTION
-};
-
-/* HID Report descriptor for the second interface. See the HID specification
- * for more deatils. This is the mouse example from the "HID Descriptor Tool"
- * which can be downloaded from USB.org. It is modified to only have 3 axes
- * just to be different from the one above. */
-static const ROMPTR uint8_t mouse_report_descriptor2[] = {
-   0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x02,                    // USAGE (Mouse)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x09, 0x01,                    //   USAGE (Pointer)
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x05, 0x09,                    //     USAGE_PAGE (Button)
-    0x19, 0x01,                    //     USAGE_MINIMUM (Button 1)
-    0x29, 0x03,                    //     USAGE_MAXIMUM (Button 3)
-    0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //     LOGICAL_MAXIMUM (1)
-    0x95, 0x03,                    //     REPORT_COUNT (3)
-    0x75, 0x01,                    //     REPORT_SIZE (1)
-    0x81, 0x02,                    //     INPUT (Data,Var,Abs)
-    0x95, 0x01,                    //     REPORT_COUNT (1)
-    0x75, 0x05,                    //     REPORT_SIZE (5)
-    0x81, 0x03,                    //     INPUT (Cnst,Var,Abs)
-    0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
-    0x09, 0x30,                    //     USAGE (X)
-    0x09, 0x31,                    //     USAGE (Y)
-    0x09, 0x32,                    //     USAGE (Z)
-    0x15, 0x81,                    //     LOGICAL_MINIMUM (-127)
-    0x25, 0x7f,                    //     LOGICAL_MAXIMUM (127)
-    0x75, 0x08,                    //     REPORT_SIZE (8)
-    0x95, 0x03,                    //     REPORT_COUNT (3)
-    0x81, 0x06,                    //     INPUT (Data,Var,Rel)
-    0xc0,                          //   END_COLLECTION
-    0xc0                           // END_COLLECTION
 };
 
 /* Configuration Packet Instance
@@ -185,33 +123,61 @@ static const ROMPTR struct configuration_1_packet configuration_1 =
 	100/2,   // 100/2 indicates 100mA
 	},
 
-	/* First Interface */
+	/* Interface Association Descriptor */
+	{
+	sizeof(struct interface_association_descriptor),
+	DESC_INTERFACE_ASSOCIATION,
+	0, /* bFirstInterface */
+	2, /* bInterfaceCount */
+	CDC_COMMUNICATION_INTERFACE_CLASS,
+	CDC_COMMUNICATION_INTERFACE_CLASS_ACM_SUBCLASS,
+	0, /* bFunctionProtocol */
+	2, /* iFunction (string descriptor index) */
+	},
+
+	/* CDC Class Interface */
 	{
 	// Members from struct interface_descriptor
 	sizeof(struct interface_descriptor), // bLength;
 	DESC_INTERFACE,
-	0x1, // InterfaceNumber
+	0x0, // InterfaceNumber
 	0x0, // AlternateSetting
-	0x2, // bNumEndpoints (num besides endpoint 0)
-	HID_INTERFACE_CLASS, // bInterfaceClass 3=HID, 0xFF=VendorDefined
-	0x00, // bInterfaceSubclass (0=NoBootInterface for HID)
+	0x1, // bNumEndpoints
+	CDC_COMMUNICATION_INTERFACE_CLASS, // bInterfaceClass
+	CDC_COMMUNICATION_INTERFACE_CLASS_ACM_SUBCLASS, // bInterfaceSubclass
 	0x00, // bInterfaceProtocol
 	0x03, // iInterface (index of string describing interface)
 	},
 
+	/* CDC Functional Descriptor Header */
 	{
-	// Members from struct hid_descriptor
-	sizeof(struct hid_descriptor),
-	DESC_HID,
-	0x0101, // bcdHID
-	0x0, // bCountryCode
-	1,   // bNumDescriptors
-	DESC_REPORT, // bDescriptorType2
-	sizeof(mouse_report_descriptor), // wDescriptorLength
+	sizeof(struct cdc_functional_descriptor_header),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_HEADER,
+	0x0110, /* bcdCDC (version in BCD) */
 	},
 
+	/* CDC ACM Functional Descriptor */
 	{
-	// Members of the Endpoint Descriptor (EP1 IN)
+	sizeof(struct cdc_acm_functional_descriptor),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_ACM,
+	/* bmCapabilities: Make sure to keep in sync with the actual
+	 * capabilities (ie: which callbacks are defined). */
+	CDC_ACM_CAPABILITY_LINE_CODINGS | CDC_ACM_CAPABILITY_SEND_BREAK,
+	},
+
+	/* CDC Union Functional Descriptor */
+	{
+	sizeof (struct cdc_union_functional_descriptor),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_UNION,
+	0, /* bMasterInterface */
+	1, /* bSlaveInterface0 */
+	},
+
+	/* CDC ACM Notification Endpoint (Endpoint 1 IN) */
+	{
 	sizeof(struct endpoint_descriptor),
 	DESC_ENDPOINT,
 	0x01 | 0x80, // endpoint #1 0x80=IN
@@ -220,57 +186,36 @@ static const ROMPTR struct configuration_1_packet configuration_1 =
 	1, // bInterval in ms.
 	},
 
-	{
-	// Members of the Endpoint Descriptor (EP1 OUT)
-	sizeof(struct endpoint_descriptor),
-	DESC_ENDPOINT,
-	0x01 /*| 0x00*/, // endpoint #1 0x00=OUT
-	EP_INTERRUPT, // bmAttributes
-	EP_1_OUT_LEN, // wMaxPacketSize
-	1, // bInterval in ms.
-	},
-
-	/* Second Interface */
+	/* CDC Data Interface */
 	{
 	// Members from struct interface_descriptor
 	sizeof(struct interface_descriptor), // bLength;
 	DESC_INTERFACE,
-	0x2, // InterfaceNumber
+	0x1, // InterfaceNumber
 	0x0, // AlternateSetting
-	0x2, // bNumEndpoints (num besides endpoint 0)
-	HID_INTERFACE_CLASS, // bInterfaceClass 3=HID, 0xFF=VendorDefined
-	0x00, // bInterfaceSubclass (0=NoBootInterface for HID)
-	0x00, // bInterfaceProtocol
+	0x2, // bNumEndpoints
+	CDC_DATA_INTERFACE_CLASS, // bInterfaceClass
+	0, // bInterfaceSubclass (no subclass)
+	CDC_DATA_INTERFACE_CLASS_PROTOCOL_NONE, // bInterfaceProtocol
 	0x04, // iInterface (index of string describing interface)
 	},
 
+	/* CDC Data IN Endpoint */
 	{
-	// Members from struct hid_descriptor
-	sizeof(struct hid_descriptor),
-	DESC_HID,
-	0x0101, // bcdHID
-	0x0, // bCountryCode
-	1,   // bNumDescriptors
-	DESC_REPORT, // bDescriptorType2
-	sizeof(mouse_report_descriptor2), // wDescriptorLength
-	},
-
-	{
-	// Members of the Endpoint Descriptor (EP2 IN)
 	sizeof(struct endpoint_descriptor),
 	DESC_ENDPOINT,
 	0x02 | 0x80, // endpoint #2 0x80=IN
-	EP_INTERRUPT, // bmAttributes
+	EP_BULK, // bmAttributes
 	EP_2_IN_LEN, // wMaxPacketSize
 	1, // bInterval in ms.
 	},
 
+	/* CDC Data OUT Endpoint */
 	{
-	// Members of the Endpoint Descriptor (EP2 OUT)
 	sizeof(struct endpoint_descriptor),
 	DESC_ENDPOINT,
 	0x02 /*| 0x00*/, // endpoint #2 0x00=OUT
-	EP_INTERRUPT, // bmAttributes
+	EP_BULK, // bmAttributes
 	EP_2_OUT_LEN, // wMaxPacketSize
 	1, // bInterval in ms.
 	},
@@ -300,23 +245,34 @@ static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t ch
 	{'S','i','g','n','a','l',' ','1','1',' ','S','o','f','t','w','a','r','e',' ','L','L','C','.'}
 };
 
-static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[24]; } product_string = {
+static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[12]; } product_string = {
 	sizeof(product_string),
 	DESC_STRING,
-	{'U','S','B',' ','C','o','m','p','o','s','i','t','e',' ','M','o','u','s','e',' ','D','e','m','o'}
+	{'U','S','B',' ','C','D','C',' ','T','e','s','t',}
 };
 
-static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[23]; } interface_string1 = {
-	sizeof(interface_string1),
+static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[13]; } cdc_interface_string = {
+	sizeof(cdc_interface_string),
 	DESC_STRING,
-	{'I','n','t','e','r','f','a','c','e',' ','1',':',' ','H','o','r','i','z','o','n','t','a','l'}
+	{'C','D','C',' ','I','n','t','e','r','f','a','c','e'}
 };
 
-static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[21]; } interface_string2 = {
-	sizeof(interface_string2),
+static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[18]; } cdc_data_string = {
+	sizeof(cdc_data_string),
 	DESC_STRING,
-	{'I','n','t','e','r','f','a','c','e',' ','2',':',' ','V','e','r','t','i','c','a','l'}
+	{'C','D','C',' ','D','a','t','a',' ','I','n','t','e','r','f','a','c','e'}
 };
+
+static const ROMPTR struct {uint8_t bLength;uint8_t bDescriptorType; uint16_t chars[59]; } fake_serial_num = {
+	sizeof(fake_serial_num),
+	DESC_STRING,
+	{'F','A','K','E',' ','S','e','r','i','a','l',' ',
+	 'N','u','m','b','e','r',':',' ',
+	 'D','o','n','\'','t',' ','s','h','i','p',' ','a',' ',
+	 'p','r','o','d','u','c','t',' ','l','i','k','e',' ',
+	 't','h','i','s','.',' ','P','L','E','A','S','E','!', }
+};
+
 
 /* Get String function
  *
@@ -343,17 +299,24 @@ int16_t usb_application_get_string(uint8_t string_number, const void **ptr)
 		return sizeof(product_string);
 	}
 	else if (string_number == 3) {
-		*ptr = &interface_string1;
-		return sizeof(interface_string1);
+		*ptr = &cdc_interface_string;
+		return sizeof(cdc_interface_string);
 	}
 	else if (string_number == 4) {
-		*ptr = &interface_string2;
-		return sizeof(interface_string2);
+		*ptr = &cdc_data_string;
+		return sizeof(cdc_data_string);
 	}
 	else if (string_number == 5) {
-		/* This is where you might have code to do something like read
-		   a serial number out of EEPROM and return it. */
-		return -1;
+		/* This is where you will have code to do something like read
+		 * a serial number out of EEPROM and return it. For CDC
+		 * devices, this is a MUST.
+		 *
+		 * However, since this is a demo, we will return a fake,
+		 * hard-coded serial number here. PLEASE don't ship products
+		 * like this. If you do, your customers will be mad as soon
+		 * as they plug two of your devices in at the same time. */
+		*ptr = &fake_serial_num;
+		return sizeof(fake_serial_num);
 	}
 
 	return -1;
@@ -377,36 +340,3 @@ const struct configuration_descriptor *usb_application_config_descs[] =
 STATIC_SIZE_CHECK_EQUAL(USB_ARRAYLEN(USB_CONFIG_DESCRIPTOR_MAP), NUMBER_OF_CONFIGURATIONS);
 STATIC_SIZE_CHECK_EQUAL(sizeof(USB_DEVICE_DESCRIPTOR), 18);
 
-/* HID Descriptor Function */
-int16_t usb_application_get_hid_descriptor(uint8_t interface, const void **ptr)
-{
-	/* Only one interface in this demo. The two-step assignment avoids an
-	 * incorrect error in XC8 on PIC16. */
-	if (interface == 1) {
-		const void *p = &configuration_1.hid;
-		*ptr = p;
-		return sizeof(configuration_1.hid);
-	}
-	else if (interface == 2) {
-		const void *p = &configuration_1.hid2;
-		*ptr = p;
-		return sizeof(configuration_1.hid2);
-	}
-
-	return -1;
-}
-
-/** HID Report Descriptor Function */
-int16_t usb_application_get_hid_report_descriptor(uint8_t interface, const void **ptr)
-{
-	if (interface == 1) {
-		*ptr = mouse_report_descriptor;
-		return sizeof(mouse_report_descriptor);
-	}
-	else if (interface == 2) {
-		*ptr = mouse_report_descriptor2;
-		return sizeof(mouse_report_descriptor2);
-	}
-
-	return -1;
-}

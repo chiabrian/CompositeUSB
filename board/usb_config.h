@@ -1,5 +1,5 @@
 /*
- * USB HID Mouse Configuration
+ * USB CDC ACM Demo Configuration
  *
  * This file may be used by anyone for any purpose and may be used as a
  * starting point making your own application using M-Stack.
@@ -33,10 +33,13 @@
 /* Only 8, 16, 32 and 64 are supported for endpoint zero length. */
 #define EP_0_LEN 8
 
-#define EP_1_OUT_LEN 8
-#define EP_1_IN_LEN 8
-#define EP_2_OUT_LEN 8
-#define EP_2_IN_LEN 8
+#define EP_1_OUT_LEN 1
+#define EP_1_IN_LEN 10 /* May need to be longer, depending
+                        * on the notifications you support. */
+ /* The code in the demo app assumes that EP2 IN and OUT are the same length */
+#define EP_2_LEN 64
+#define EP_2_OUT_LEN EP_2_LEN
+#define EP_2_IN_LEN EP_2_LEN
 
 #define NUMBER_OF_CONFIGURATIONS 1
 
@@ -87,17 +90,15 @@
 #define START_OF_FRAME_CALLBACK    app_start_of_frame_callback
 #define USB_RESET_CALLBACK         app_usb_reset_callback
 
-/* HID Configuration functions. See usb_hid.h for documentation. */
-#define USB_HID_DESCRIPTOR_FUNC usb_application_get_hid_descriptor
-#define USB_HID_REPORT_DESCRIPTOR_FUNC usb_application_get_hid_report_descriptor
-//#define USB_HID_PHYSICAL_DESCRIPTOR_FUNC usb_application_get_hid_physical_descriptor
-
-/* HID Callbacks. See usb_hid.h for documentation. */
-#define HID_GET_REPORT_CALLBACK app_get_report_callback
-#define HID_SET_REPORT_CALLBACK app_set_report_callback
-#define HID_GET_IDLE_CALLBACK app_get_idle_callback
-#define HID_SET_IDLE_CALLBACK app_set_idle_callback
-#define HID_GET_PROTOCOL_CALLBACK app_get_protocol_callback
-#define HID_SET_PROTOCOL_CALLBACK app_set_protocol_callback
+/* CDC Configuration functions. See usb_cdc.h for documentation. */
+#define CDC_SEND_ENCAPSULATED_COMMAND_CALLBACK app_send_encapsulated_command
+#define CDC_GET_ENCAPSULATED_RESPONSE_CALLBACK app_get_encapsulated_response
+#define CDC_SET_COMM_FEATURE_CALLBACK app_set_comm_feature_callback
+#define CDC_CLEAR_COMM_FEATURE_CALLBACK app_clear_comm_feature_callback
+#define CDC_GET_COMM_FEATURE_CALLBACK app_get_comm_feature_callback
+#define CDC_SET_LINE_CODING_CALLBACK app_set_line_coding_callback
+#define CDC_GET_LINE_CODING_CALLBACK app_get_line_coding_callback
+#define CDC_SET_CONTROL_LINE_STATE_CALLBACK app_set_control_line_state_callback
+#define CDC_SEND_BREAK_CALLBACK app_send_break_callback
 
 #endif /* USB_CONFIG_H__ */
