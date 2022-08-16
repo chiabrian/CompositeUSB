@@ -22,6 +22,7 @@
 #include "usb.h"
 #include <xc.h>
 #include <string.h>
+#include <stdio.h>
 #include "usb_config.h"
 #include "usb_ch9.h"
 #include "usb_cdc.h"
@@ -30,6 +31,9 @@
 #ifdef MULTI_CLASS_DEVICE
 static uint8_t cdc_interfaces[] = { 0 };
 #endif
+
+volatile uint32_t tmr_ms = 0;
+char buf[8];
 
 static void send_string_sync(uint8_t endpoint, const char *str)
 {
@@ -44,11 +48,32 @@ static void send_string_sync(uint8_t endpoint, const char *str)
 	usb_send_in_buffer(endpoint, strlen(in_buf));
 }
 
+void sys_init(void)
+{
+    //RED LED
+    TRISBbits.TRISB0 = 0;
+    ANSELBbits.ANSB0 = 0;
+    
+    //Green LED
+    TRISBbits.TRISB1 = 0;
+    ANSELBbits.ANSB1 = 0;
+    
+    RPOR5bits.RP24R = 0x0004;   //RP24/RAA9->UART2:U2TX
+    RPINR9bits.U2RXR = 0x005;   //RP5/RA4->UART2:U2RX    
+
+    U2MODEbits.CLKSEL = 1;      //SYSCLK
+    U2BRG = 12;                 //115200 Baud, (CLK / (16 * Baud)) - 1
+    U2STAbits.UTXEN = 1;        //Enable UART Transmit
+    U2STAbits.URXEN = 1;        //Enable UART Receive
+    
+    U2MODEbits.ON = 1;          //Enable to UART
+}
+
 int main(void)
 {
 
     hardware_init();
-
+    sys_init();
 #ifdef MULTI_CLASS_DEVICE
 	cdc_set_interface_list(cdc_interfaces, sizeof(cdc_interfaces));
 #endif
@@ -60,6 +85,12 @@ int main(void)
 
 	while (1) {
 
+        if(tmr_ms >=100)
+        {
+            tmr_ms = 0;
+            PORTBINV = 1;
+        }
+        
 		/* Send data to the PC */
 		if (usb_is_configured() &&
 		    !usb_in_endpoint_halted(2) &&
@@ -90,6 +121,15 @@ int main(void)
 			out_buf_len = usb_get_out_buffer(2, &out_buf);
 			if (out_buf_len <= 0)
 				goto empty;
+            int bytes = snprintf(buf,6,"%d",out_buf_len);
+            uint8_t cnt;
+            for(cnt=0;cnt<bytes;cnt++)
+            {
+                U2TXREG = buf[cnt];
+            }
+            U2TXREG = '\r';
+            U2TXREG = '\n';
+            
 
 			if (send) {
 				/* Stop sendng if a key was hit. */
@@ -257,7 +297,7 @@ int16_t app_unknown_get_descriptor_callback(const struct setup_packet *pkt, cons
 
 void app_start_of_frame_callback(void)
 {
-
+    tmr_ms++;
 }
 
 void app_usb_reset_callback(void)
