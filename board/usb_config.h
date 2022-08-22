@@ -28,18 +28,27 @@
    BOTH IN and OUT endpoints for endpoint numbers (besides zero) up to the
    value specified.  For example, setting NUM_ENDPOINT_NUMBERS to 2 will
    activate endpoints EP 1 IN, EP 1 OUT, EP 2 IN, EP 2 OUT.  */
-#define NUM_ENDPOINT_NUMBERS 2
+#define NUM_ENDPOINT_NUMBERS 4
 
 /* Only 8, 16, 32 and 64 are supported for endpoint zero length. */
 #define EP_0_LEN 8
 
-#define EP_1_OUT_LEN 1
-#define EP_1_IN_LEN 10 /* May need to be longer, depending
+#define EP_1_OUT_LEN 16
+#define EP_1_IN_LEN 16 /* May need to be longer, depending
                         * on the notifications you support. */
  /* The code in the demo app assumes that EP2 IN and OUT are the same length */
 #define EP_2_LEN 64
 #define EP_2_OUT_LEN EP_2_LEN
 #define EP_2_IN_LEN EP_2_LEN
+
+#define EP_3_OUT_LEN 16
+#define EP_3_IN_LEN 16 /* May need to be longer, depending
+                        * on the notifications you support. */
+ /* The code in the demo app assumes that EP4 IN and OUT are the same length */
+#define EP_4_LEN 64
+#define EP_4_OUT_LEN EP_4_LEN
+#define EP_4_IN_LEN EP_4_LEN
+
 
 #define NUMBER_OF_CONFIGURATIONS 1
 
@@ -49,11 +58,11 @@
 	PPB_ALL          - Ping-pong all endpoints
 	PPB_EPN_ONLY     - Ping-pong all endpoints except 0
 */
-#if defined(__PIC32MX__) || \
-    defined(__32MM0256GPM064__) || \
-    defined(__32MM0256GPM048__)
+#if defined(__PIC32MX__)
 	/* PIC32MX only supports PPB_ALL */
 	#define PPB_MODE PPB_ALL
+#elif defined(__PIC32MM__)
+    #define PPB_MODE PPB_ALL
 #else
 	#define PPB_MODE PPB_NONE
 #endif

@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=mstack/usb/src/usb.c mstack/usb/src/usb_cdc.c mstack/usb/src/usb_winusb.c board/hardware.c board/main.c board/usb_descriptors.c
+SOURCEFILES_QUOTED_IF_SPACED=board/hardware.c board/main.c board/usb_descriptors.c mstack/usb/src/usb.c mstack/usb/src/usb_cdc.c mstack/usb/src/usb_winusb.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mstack/usb/src/usb.o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o ${OBJECTDIR}/board/hardware.o ${OBJECTDIR}/board/main.o ${OBJECTDIR}/board/usb_descriptors.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/mstack/usb/src/usb.o.d ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d ${OBJECTDIR}/board/hardware.o.d ${OBJECTDIR}/board/main.o.d ${OBJECTDIR}/board/usb_descriptors.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/board/hardware.o ${OBJECTDIR}/board/main.o ${OBJECTDIR}/board/usb_descriptors.o ${OBJECTDIR}/mstack/usb/src/usb.o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/board/hardware.o.d ${OBJECTDIR}/board/main.o.d ${OBJECTDIR}/board/usb_descriptors.o.d ${OBJECTDIR}/mstack/usb/src/usb.o.d ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/mstack/usb/src/usb.o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o ${OBJECTDIR}/board/hardware.o ${OBJECTDIR}/board/main.o ${OBJECTDIR}/board/usb_descriptors.o
+OBJECTFILES=${OBJECTDIR}/board/hardware.o ${OBJECTDIR}/board/main.o ${OBJECTDIR}/board/usb_descriptors.o ${OBJECTDIR}/mstack/usb/src/usb.o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o
 
 # Source Files
-SOURCEFILES=mstack/usb/src/usb.c mstack/usb/src/usb_cdc.c mstack/usb/src/usb_winusb.c board/hardware.c board/main.c board/usb_descriptors.c
+SOURCEFILES=board/hardware.c board/main.c board/usb_descriptors.c mstack/usb/src/usb.c mstack/usb/src/usb_cdc.c mstack/usb/src/usb_winusb.c
 
 
 
@@ -107,78 +107,78 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/mstack/usb/src/usb.o: mstack/usb/src/usb.c  .generated_files/flags/default/7afe48f88c0a898b962d33372115ec63d9f61e8f .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb.o mstack/usb/src/usb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/mstack/usb/src/usb_cdc.o: mstack/usb/src/usb_cdc.c  .generated_files/flags/default/d6f0fa36e606323ac44734ae19268e256374ce68 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o mstack/usb/src/usb_cdc.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/mstack/usb/src/usb_winusb.o: mstack/usb/src/usb_winusb.c  .generated_files/flags/default/323c68202eecb48cceb726336936deded4b8bc58 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o mstack/usb/src/usb_winusb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/board/hardware.o: board/hardware.c  .generated_files/flags/default/11146af13af865ddec9879d488dc2d22b3cdb55e .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/hardware.o: board/hardware.c  .generated_files/flags/default/9b75da158202e1e20116bf3214eaf866a8ba712e .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/hardware.o.d 
 	@${RM} ${OBJECTDIR}/board/hardware.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/hardware.o.d" -o ${OBJECTDIR}/board/hardware.o board/hardware.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/hardware.o.d" -o ${OBJECTDIR}/board/hardware.o board/hardware.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/board/main.o: board/main.c  .generated_files/flags/default/76a84b9022eb6f948710d370b9937b2ed7cfb958 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/main.o: board/main.c  .generated_files/flags/default/d250f2e05901a705e50172987e9f7a446077ca86 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/main.o.d 
 	@${RM} ${OBJECTDIR}/board/main.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/main.o.d" -o ${OBJECTDIR}/board/main.o board/main.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/main.o.d" -o ${OBJECTDIR}/board/main.o board/main.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/board/usb_descriptors.o: board/usb_descriptors.c  .generated_files/flags/default/41188f672e18d28585f3e95fd98031f1ddf7e41a .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/usb_descriptors.o: board/usb_descriptors.c  .generated_files/flags/default/24fecf08a230b95821abe5e7d487a0ecd35cb85a .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/usb_descriptors.o.d 
 	@${RM} ${OBJECTDIR}/board/usb_descriptors.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/usb_descriptors.o.d" -o ${OBJECTDIR}/board/usb_descriptors.o board/usb_descriptors.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/usb_descriptors.o.d" -o ${OBJECTDIR}/board/usb_descriptors.o board/usb_descriptors.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb.o: mstack/usb/src/usb.c  .generated_files/flags/default/35df2674d613fb62a5ed4de00861f21bbc9fb8fb .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb.o mstack/usb/src/usb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb_cdc.o: mstack/usb/src/usb_cdc.c  .generated_files/flags/default/51b825ec0c8b40738fbbc39ded99a56a4a46db48 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o mstack/usb/src/usb_cdc.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb_winusb.o: mstack/usb/src/usb_winusb.c  .generated_files/flags/default/c92898ccf231cac6f55a945c24be522df145279b .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o mstack/usb/src/usb_winusb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 else
-${OBJECTDIR}/mstack/usb/src/usb.o: mstack/usb/src/usb.c  .generated_files/flags/default/7bc4cab1a0ba9f52023591f6eb6ae00d839e75a2 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb.o mstack/usb/src/usb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/mstack/usb/src/usb_cdc.o: mstack/usb/src/usb_cdc.c  .generated_files/flags/default/c1697732493cab4f0a38929f821f536fe003da2a .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o mstack/usb/src/usb_cdc.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/mstack/usb/src/usb_winusb.o: mstack/usb/src/usb_winusb.c  .generated_files/flags/default/2f26301c273b1edee062c00250444a2e002237f2 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
-	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d 
-	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o mstack/usb/src/usb_winusb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
-${OBJECTDIR}/board/hardware.o: board/hardware.c  .generated_files/flags/default/7e86c1b5d5392de31ba1df3942ba02f42363a7ef .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/hardware.o: board/hardware.c  .generated_files/flags/default/617ca7deebe983ee27c1f5dcbedfa22588c27ac4 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/hardware.o.d 
 	@${RM} ${OBJECTDIR}/board/hardware.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/hardware.o.d" -o ${OBJECTDIR}/board/hardware.o board/hardware.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/hardware.o.d" -o ${OBJECTDIR}/board/hardware.o board/hardware.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/board/main.o: board/main.c  .generated_files/flags/default/406e02b0e4541b91d5cb1fc8cd2089abe761765a .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/main.o: board/main.c  .generated_files/flags/default/cf2b2fba50a4ca9c55da32878a1d40600237e735 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/main.o.d 
 	@${RM} ${OBJECTDIR}/board/main.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/main.o.d" -o ${OBJECTDIR}/board/main.o board/main.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/main.o.d" -o ${OBJECTDIR}/board/main.o board/main.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/board/usb_descriptors.o: board/usb_descriptors.c  .generated_files/flags/default/e22b3ac08d02b7c4dcce284869634dc182b6553a .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+${OBJECTDIR}/board/usb_descriptors.o: board/usb_descriptors.c  .generated_files/flags/default/7b010ce504da4dc681106de5e4e30556d3b4691c .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
 	@${MKDIR} "${OBJECTDIR}/board" 
 	@${RM} ${OBJECTDIR}/board/usb_descriptors.o.d 
 	@${RM} ${OBJECTDIR}/board/usb_descriptors.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/usb_descriptors.o.d" -o ${OBJECTDIR}/board/usb_descriptors.o board/usb_descriptors.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/board/usb_descriptors.o.d" -o ${OBJECTDIR}/board/usb_descriptors.o board/usb_descriptors.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb.o: mstack/usb/src/usb.c  .generated_files/flags/default/37b624b74d55e549f7b9cb8452b4876ff3b16d64 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb.o mstack/usb/src/usb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb_cdc.o: mstack/usb/src/usb_cdc.c  .generated_files/flags/default/b3cd4762e4b59555cc11153bcab3dfa66d786386 .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_cdc.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_cdc.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_cdc.o mstack/usb/src/usb_cdc.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/mstack/usb/src/usb_winusb.o: mstack/usb/src/usb_winusb.c  .generated_files/flags/default/a8ad307eb43c157fd820805758d7c092fe8c283b .generated_files/flags/default/88d83c7a69442caf92c0f7f6fbd64c23df277cf
+	@${MKDIR} "${OBJECTDIR}/mstack/usb/src" 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d 
+	@${RM} ${OBJECTDIR}/mstack/usb/src/usb_winusb.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -O2 -fno-common -I"mstack/usb/include" -I"board" -MP -MMD -MF "${OBJECTDIR}/mstack/usb/src/usb_winusb.o.d" -o ${OBJECTDIR}/mstack/usb/src/usb_winusb.o mstack/usb/src/usb_winusb.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

@@ -71,6 +71,18 @@ struct configuration_1_packet {
 	struct endpoint_descriptor       data_ep_in;
 	struct endpoint_descriptor       data_ep_out;
 
+    struct interface_association_descriptor iad2;
+    /* CDC Class Interface */
+	struct interface_descriptor      cdc_class_interface2;
+	struct cdc_functional_descriptor_header cdc_func_header2;
+	struct cdc_acm_functional_descriptor cdc_acm2;
+	struct cdc_union_functional_descriptor cdc_union2;
+	struct endpoint_descriptor       cdc_ep2;
+
+	/* CDC Data Interface */
+	struct interface_descriptor      cdc_data_interface2;
+	struct endpoint_descriptor       data_ep_in2;
+	struct endpoint_descriptor       data_ep_out2;
 };
 
 
@@ -116,7 +128,7 @@ static const ROMPTR struct configuration_1_packet configuration_1 =
 	sizeof(struct configuration_descriptor),
 	DESC_CONFIGURATION,
 	sizeof(configuration_1), // wTotalLength (length of the whole packet)
-	2, // bNumInterfaces
+	4, // bNumInterfaces
 	1, // bConfigurationValue
 	2, // iConfiguration (index of string descriptor)
 	0b10000000,
@@ -217,6 +229,103 @@ static const ROMPTR struct configuration_1_packet configuration_1 =
 	0x02 /*| 0x00*/, // endpoint #2 0x00=OUT
 	EP_BULK, // bmAttributes
 	EP_2_OUT_LEN, // wMaxPacketSize
+	1, // bInterval in ms.
+	},
+    
+    /* Interface Association Descriptor 2*/
+	{
+	sizeof(struct interface_association_descriptor),
+	DESC_INTERFACE_ASSOCIATION,
+	2, /* bFirstInterface */
+	2, /* bInterfaceCount */
+	CDC_COMMUNICATION_INTERFACE_CLASS,
+	CDC_COMMUNICATION_INTERFACE_CLASS_ACM_SUBCLASS,
+	0, /* bFunctionProtocol */
+	2, /* iFunction (string descriptor index) */
+	},
+
+	/* CDC Class Interface */
+	{
+	// Members from struct interface_descriptor
+	sizeof(struct interface_descriptor), // bLength;
+	DESC_INTERFACE,
+	0x2, // InterfaceNumber
+	0x0, // AlternateSetting
+	0x1, // bNumEndpoints
+	CDC_COMMUNICATION_INTERFACE_CLASS, // bInterfaceClass
+	CDC_COMMUNICATION_INTERFACE_CLASS_ACM_SUBCLASS, // bInterfaceSubclass
+	0x00, // bInterfaceProtocol
+	0x03, // iInterface (index of string describing interface)
+	},
+
+	/* CDC Functional Descriptor Header */
+	{
+	sizeof(struct cdc_functional_descriptor_header),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_HEADER,
+	0x0110, /* bcdCDC (version in BCD) */
+	},
+
+	/* CDC ACM Functional Descriptor */
+	{
+	sizeof(struct cdc_acm_functional_descriptor),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_ACM,
+	/* bmCapabilities: Make sure to keep in sync with the actual
+	 * capabilities (ie: which callbacks are defined). */
+	CDC_ACM_CAPABILITY_LINE_CODINGS | CDC_ACM_CAPABILITY_SEND_BREAK,
+	},
+
+	/* CDC Union Functional Descriptor */
+	{
+	sizeof (struct cdc_union_functional_descriptor),
+	DESC_CS_INTERFACE,
+	CDC_FUNCTIONAL_DESCRIPTOR_SUBTYPE_UNION,
+	0, /* bMasterInterface */
+	1, /* bSlaveInterface0 */
+	},
+
+	/* CDC ACM Notification Endpoint (Endpoint 3 IN) */
+	{
+	sizeof(struct endpoint_descriptor),
+	DESC_ENDPOINT,
+	0x03 | 0x80, // endpoint #3 0x80=IN
+	EP_INTERRUPT, // bmAttributes
+	EP_3_IN_LEN, // wMaxPacketSize
+	1, // bInterval in ms.
+	},
+
+	/* CDC Data Interface */
+	{
+	// Members from struct interface_descriptor
+	sizeof(struct interface_descriptor), // bLength;
+	DESC_INTERFACE,
+	0x3, // InterfaceNumber
+	0x0, // AlternateSetting
+	0x2, // bNumEndpoints
+	CDC_DATA_INTERFACE_CLASS, // bInterfaceClass
+	0, // bInterfaceSubclass (no subclass)
+	CDC_DATA_INTERFACE_CLASS_PROTOCOL_NONE, // bInterfaceProtocol
+	0x04, // iInterface (index of string describing interface)
+	},
+
+	/* CDC Data IN Endpoint */
+	{
+	sizeof(struct endpoint_descriptor),
+	DESC_ENDPOINT,
+	0x04 | 0x80, // endpoint #4 0x80=IN
+	EP_BULK, // bmAttributes
+	EP_4_IN_LEN, // wMaxPacketSize
+	1, // bInterval in ms.
+	},
+
+	/* CDC Data OUT Endpoint */
+	{
+	sizeof(struct endpoint_descriptor),
+	DESC_ENDPOINT,
+	0x04 /*| 0x00*/, // endpoint #4 0x00=OUT
+	EP_BULK, // bmAttributes
+	EP_4_OUT_LEN, // wMaxPacketSize
 	1, // bInterval in ms.
 	},
 };

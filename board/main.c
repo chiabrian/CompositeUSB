@@ -33,20 +33,6 @@ static uint8_t cdc_interfaces[] = { 0 };
 #endif
 
 volatile uint32_t tmr_ms = 0;
-char buf[8];
-
-static void send_string_sync(uint8_t endpoint, const char *str)
-{
-	char *in_buf = (char*) usb_get_in_buffer(endpoint);
-
-	while (usb_in_endpoint_busy(endpoint))
-		;
-
-	strcpy(in_buf, str);
-	/* Hack: Get the length from strlen(). This is inefficient, but it's
-	 * just a demo. strlen()'s return excludes the terminating NULL. */
-	usb_send_in_buffer(endpoint, strlen(in_buf));
-}
 
 void sys_init(void)
 {
@@ -79,10 +65,6 @@ int main(void)
 #endif
 	usb_init();
 
-	uint8_t char_to_send = 'A';
-	bool send = true;
-	bool loopback = false;
-
 	while (1) {
 
         if(tmr_ms >=100)
@@ -91,52 +73,21 @@ int main(void)
             PORTBINV = 1;
         }
         
-		/* Send data to the PC */
-		if (usb_is_configured() &&
-		    !usb_in_endpoint_halted(2) &&
-		    !usb_in_endpoint_busy(2) && send) {
-
-			int i;
-			unsigned char *buf = usb_get_in_buffer(2);
-
-			for (i = 0; i < 16; i++) {
-				buf[i] = char_to_send++;
-				if (char_to_send > 'Z')
-					char_to_send = 'A';
-			}
-			buf[i++] = '\r';
-			buf[i++] = '\n';
-			usb_send_in_buffer(2, i);
-		}
-
 		/* Handle data received from the host */
 		if (usb_is_configured() &&
 		    !usb_out_endpoint_halted(2) &&
 		    usb_out_endpoint_has_data(2)) {
 			const unsigned char *out_buf;
 			size_t out_buf_len;
-			int i;
 
 			/* Check for an empty transaction. */
 			out_buf_len = usb_get_out_buffer(2, &out_buf);
 			if (out_buf_len <= 0)
-				goto empty;
-            int bytes = snprintf(buf,6,"%d",out_buf_len);
-            uint8_t cnt;
-            for(cnt=0;cnt<bytes;cnt++)
             {
-                U2TXREG = buf[cnt];
+				
             }
-            U2TXREG = '\r';
-            U2TXREG = '\n';
-            
-
-			if (send) {
-				/* Stop sendng if a key was hit. */
-				send = false;
-				send_string_sync(2, "Data send off ('h' for help)\r\n");
-			}
-			else if (loopback) {
+            else
+            {
 				/* Loop data back to the PC */
 
 				/* Wait until the IN endpoint can accept it */
@@ -160,79 +111,51 @@ int main(void)
 						;
 					usb_send_in_buffer(2, 0);
 				}
-
-				/* Scan for ~ character to end loopback mode */
-				for (i = 0; i < out_buf_len; i++) {
-					if (out_buf[i] == '~') {
-						loopback = false;
-						send_string_sync(2, "\r\nLoopback off ('h' for help)\r\n");
-						break;
-					}
-				}
 			}
-			else {
-				/* Scan for commands if not in loopback or
-				 * send mode.
-				 *
-				 * This is a hack. One should really scan the
-				 * entire string. In this case, since this
-				 * is a demo, assume that the user is using
-				 * a terminal program and typing the input,
-				 * all but ensuring the data will come in
-				 * single-character transactions. */
-				if (out_buf[0] == 'h' || out_buf[0] == '?') {
-					/* Show help.
-					 * Make sure to not try to send more
-					 * than 63 bytes of data in one
-					 * transaction */
-					send_string_sync(2,
-						"\r\nHelp:\r\n"
-						"\ts: send data\r\n"
-						"\tl: loopback\r\n");
-					send_string_sync(2,
-						"\tn: send notification\r\n"
-						"\th: help\r\n");
-				}
-				else if (out_buf[0] == 's')
-					send = true;
-				else if (out_buf[0] == 'l') {
-					loopback = true;
-					send_string_sync(2, "loopback enabled; press ~ to disable\r\n");
-				}
-				else if (out_buf[0] == 'n') {
-					/* Send a Notification on Endpoint 1 */
-					struct cdc_serial_state_notification *n =
-						(struct cdc_serial_state_notification *)
-							usb_get_in_buffer(1);
-
-					n->header.REQUEST.bmRequestType = 0xa1;
-					n->header.bNotification = CDC_SERIAL_STATE;
-					n->header.wValue = 0;
-					n->header.wIndex = 1; /* Interface */
-					n->header.wLength = 2;
-					n->data.serial_state = 0; /* Zero the whole bit mask */
-					n->data.bits.bRxCarrier = 1;
-					n->data.bits.bTxCarrier = 1;
-					n->data.bits.bBreak = 0;
-					n->data.bits.bRingSignal = 0;
-					n->data.bits.bFraming = 0;
-					n->data.bits.bParity = 0;
-					n->data.bits.bOverrun = 0;
-
-					/* Wait for the endpoint to be free */
-					while (usb_in_endpoint_busy(1))
-						;
-
-					/* Send to to host */
-					usb_send_in_buffer(1, sizeof(*n));
-
-					send_string_sync(2, "Notification Sent\r\n");
-				}
-			}
-empty:
-			usb_arm_out_endpoint(2);
+            usb_arm_out_endpoint(2);
 		}
 
+        /* Handle data received from the host */
+		if (usb_is_configured() &&
+		    !usb_out_endpoint_halted(4) &&
+		    usb_out_endpoint_has_data(4)) {
+			const unsigned char *out2_buf;
+			size_t out2_buf_len;
+
+			/* Check for an empty transaction. */
+			out2_buf_len = usb_get_out_buffer(4, &out2_buf);
+			if (out2_buf_len <= 0)
+            {
+				
+            }
+            else
+            {
+				/* Loop data back to the PC */
+
+				/* Wait until the IN endpoint can accept it */
+				while (usb_in_endpoint_busy(4))
+					;
+
+				/* Copy contents of OUT buffer to IN buffer
+				 * and send back to host. */
+				memcpy(usb_get_in_buffer(4), out2_buf, out2_buf_len);
+				usb_send_in_buffer(4, out2_buf_len);
+
+				/* Send a zero-length packet if the transaction
+				 * length was the same as the endpoint
+				 * length. This is for demo purposes. In real
+				 * life, you only need to do this if the data
+				 * you're transferring ends on a multiple of
+				 * the endpoint length. */
+				if (out2_buf_len == EP_4_LEN) {
+					/* Wait until the IN endpoint can accept it */
+					while (usb_in_endpoint_busy(4))
+						;
+					usb_send_in_buffer(4, 0);
+				}
+			}
+            usb_arm_out_endpoint(4);
+		}
 		#ifndef USB_USE_INTERRUPTS
 		usb_service();
 		#endif
@@ -349,10 +272,25 @@ static struct cdc_line_coding line_coding =
 	8,
 };
 
+static struct cdc_line_coding line_coding2 =
+{
+	115200,
+	CDC_CHAR_FORMAT_1_STOP_BIT,
+	CDC_PARITY_NONE,
+	8,
+};
+
 int8_t app_set_line_coding_callback(uint8_t interface,
                                     const struct cdc_line_coding *coding)
 {
-	line_coding = *coding;
+    if(interface < 2)
+    {
+        line_coding = *coding;
+    }
+    else
+    {
+        line_coding2 = *coding;
+    }
 	return 0;
 }
 
@@ -360,7 +298,14 @@ int8_t app_get_line_coding_callback(uint8_t interface,
                                     struct cdc_line_coding *coding)
 {
 	/* This is where baud rate, data, stop, and parity bits are set. */
-	*coding = line_coding;
+    if(interface < 2)
+    {
+        *coding = line_coding;
+    }
+    else
+    {
+        *coding = line_coding2;
+    }
 	return 0;
 }
 
