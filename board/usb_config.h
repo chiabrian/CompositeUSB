@@ -28,7 +28,7 @@
    BOTH IN and OUT endpoints for endpoint numbers (besides zero) up to the
    value specified.  For example, setting NUM_ENDPOINT_NUMBERS to 2 will
    activate endpoints EP 1 IN, EP 1 OUT, EP 2 IN, EP 2 OUT.  */
-#define NUM_ENDPOINT_NUMBERS 4
+#define NUM_ENDPOINT_NUMBERS 6
 
 /* Only 8, 16, 32 and 64 are supported for endpoint zero length. */
 #define EP_0_LEN 8
@@ -49,6 +49,19 @@
 #define EP_4_OUT_LEN EP_4_LEN
 #define EP_4_IN_LEN EP_4_LEN
 
+#define EP_5_OUT_LEN 16
+#define EP_5_IN_LEN 16 /* May need to be longer, depending
+                        * on the notifications you support. */
+ /* The code in the demo app assumes that EP4 IN and OUT are the same length */
+#define EP_6_LEN 64
+#define EP_6_OUT_LEN EP_4_LEN
+#define EP_6_IN_LEN EP_4_LEN
+
+#define EP_7_OUT_LEN 64
+#define EP_7_IN_LEN 64
+
+#define EP_8_OUT_LEN 64
+#define EP_8_IN_LEN 64
 
 #define NUMBER_OF_CONFIGURATIONS 1
 
@@ -85,6 +98,12 @@
 #define USB_DEVICE_DESCRIPTOR this_device_descriptor
 #define USB_CONFIG_DESCRIPTOR_MAP usb_application_config_descs
 #define USB_STRING_DESCRIPTOR_FUNC usb_application_get_string
+
+/* The Setup Request number (bRequest) to tell the host to use for the
+ * Microsoft descriptors. See docs/winusb.txt for details. */
+#define MICROSOFT_OS_DESC_VENDOR_CODE 0x50
+/* Automatically send the descriptors to bind the WinUSB driver on Windows */
+#define AUTOMATIC_WINUSB_SUPPORT
 
 /* Optional callbacks from usb.c. Leave them commented if you don't want to
    use them. For the prototypes and documentation for each one, see usb.h. */

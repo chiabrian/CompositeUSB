@@ -416,6 +416,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="C:/Users/Brian/Projects/Personal/CompositeUSB.X/debug/default/CompositeUSB_ptg"/>
         <property key="programmerToGoImageName" value="CompositeUSB_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

@@ -26,6 +26,7 @@
 #include "usb_config.h"
 #include "usb_ch9.h"
 #include "usb_cdc.h"
+#include "usb_hid.h"
 #include "hardware.h"
 
 #ifdef MULTI_CLASS_DEVICE
@@ -55,6 +56,50 @@ void sys_init(void)
     U2MODEbits.ON = 1;          //Enable to UART
 }
 
+void cdc_loopback_handler(uint8_t ep)
+{
+    if (usb_is_configured() &&
+        !usb_out_endpoint_halted(ep) &&
+        usb_out_endpoint_has_data(ep)) {
+        const unsigned char *out_buf;
+        size_t out_buf_len;
+
+        /* Check for an empty transaction. */
+        out_buf_len = usb_get_out_buffer(ep, &out_buf);
+        if (out_buf_len <= 0)
+        {
+
+        }
+        else
+        {
+            /* Loop data back to the PC */
+
+            /* Wait until the IN endpoint can accept it */
+            while (usb_in_endpoint_busy(ep))
+                ;
+
+            /* Copy contents of OUT buffer to IN buffer
+             * and send back to host. */
+            memcpy(usb_get_in_buffer(ep), out_buf, out_buf_len);
+            usb_send_in_buffer(ep, out_buf_len);
+
+            /* Send a zero-length packet if the transaction
+             * length was the same as the endpoint
+             * length. This is for demo purposes. In real
+             * life, you only need to do this if the data
+             * you're transferring ends on a multiple of
+             * the endpoint length. */
+            if (out_buf_len == 64) {
+                /* Wait until the IN endpoint can accept it */
+                while (usb_in_endpoint_busy(ep))
+                    ;
+                usb_send_in_buffer(ep, 0);
+            }
+        }
+        usb_arm_out_endpoint(ep);
+    }
+}
+
 int main(void)
 {
 
@@ -73,89 +118,10 @@ int main(void)
             PORTBINV = 1;
         }
         
-		/* Handle data received from the host */
-		if (usb_is_configured() &&
-		    !usb_out_endpoint_halted(2) &&
-		    usb_out_endpoint_has_data(2)) {
-			const unsigned char *out_buf;
-			size_t out_buf_len;
+        cdc_loopback_handler(2);
+        cdc_loopback_handler(4);
+        cdc_loopback_handler(6);
 
-			/* Check for an empty transaction. */
-			out_buf_len = usb_get_out_buffer(2, &out_buf);
-			if (out_buf_len <= 0)
-            {
-				
-            }
-            else
-            {
-				/* Loop data back to the PC */
-
-				/* Wait until the IN endpoint can accept it */
-				while (usb_in_endpoint_busy(2))
-					;
-
-				/* Copy contents of OUT buffer to IN buffer
-				 * and send back to host. */
-				memcpy(usb_get_in_buffer(2), out_buf, out_buf_len);
-				usb_send_in_buffer(2, out_buf_len);
-
-				/* Send a zero-length packet if the transaction
-				 * length was the same as the endpoint
-				 * length. This is for demo purposes. In real
-				 * life, you only need to do this if the data
-				 * you're transferring ends on a multiple of
-				 * the endpoint length. */
-				if (out_buf_len == EP_2_LEN) {
-					/* Wait until the IN endpoint can accept it */
-					while (usb_in_endpoint_busy(2))
-						;
-					usb_send_in_buffer(2, 0);
-				}
-			}
-            usb_arm_out_endpoint(2);
-		}
-
-        /* Handle data received from the host */
-		if (usb_is_configured() &&
-		    !usb_out_endpoint_halted(4) &&
-		    usb_out_endpoint_has_data(4)) {
-			const unsigned char *out2_buf;
-			size_t out2_buf_len;
-
-			/* Check for an empty transaction. */
-			out2_buf_len = usb_get_out_buffer(4, &out2_buf);
-			if (out2_buf_len <= 0)
-            {
-				
-            }
-            else
-            {
-				/* Loop data back to the PC */
-
-				/* Wait until the IN endpoint can accept it */
-				while (usb_in_endpoint_busy(4))
-					;
-
-				/* Copy contents of OUT buffer to IN buffer
-				 * and send back to host. */
-				memcpy(usb_get_in_buffer(4), out2_buf, out2_buf_len);
-				usb_send_in_buffer(4, out2_buf_len);
-
-				/* Send a zero-length packet if the transaction
-				 * length was the same as the endpoint
-				 * length. This is for demo purposes. In real
-				 * life, you only need to do this if the data
-				 * you're transferring ends on a multiple of
-				 * the endpoint length. */
-				if (out2_buf_len == EP_4_LEN) {
-					/* Wait until the IN endpoint can accept it */
-					while (usb_in_endpoint_busy(4))
-						;
-					usb_send_in_buffer(4, 0);
-				}
-			}
-            usb_arm_out_endpoint(4);
-		}
 		#ifndef USB_USE_INTERRUPTS
 		usb_service();
 		#endif
@@ -280,6 +246,14 @@ static struct cdc_line_coding line_coding2 =
 	8,
 };
 
+static struct cdc_line_coding line_coding3 =
+{
+	115200,
+	CDC_CHAR_FORMAT_1_STOP_BIT,
+	CDC_PARITY_NONE,
+	8,
+};
+
 int8_t app_set_line_coding_callback(uint8_t interface,
                                     const struct cdc_line_coding *coding)
 {
@@ -287,9 +261,13 @@ int8_t app_set_line_coding_callback(uint8_t interface,
     {
         line_coding = *coding;
     }
-    else
+    else if(interface < 4)
     {
         line_coding2 = *coding;
+    }
+    else
+    {
+        line_coding3 = *coding;
     }
 	return 0;
 }
@@ -302,9 +280,13 @@ int8_t app_get_line_coding_callback(uint8_t interface,
     {
         *coding = line_coding;
     }
-    else
+    else if(interface < 4)
     {
         *coding = line_coding2;
+    }
+    else
+    {
+        *coding = line_coding3;
     }
 	return 0;
 }
@@ -319,7 +301,6 @@ int8_t app_send_break_callback(uint8_t interface, uint16_t duration)
 {
 	return 0;
 }
-
 
 #ifdef _PIC14E
 void interrupt isr()
